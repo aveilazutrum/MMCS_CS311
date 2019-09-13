@@ -58,6 +58,7 @@ namespace Lexer
 
         protected System.Text.StringBuilder intString;
         public int parseResult = 0;
+		Boolean isNegative = false;
 
         public IntLexer(string input)
             : base(input)
@@ -70,12 +71,17 @@ namespace Lexer
             NextCh();
             if (currentCh == '+' || currentCh == '-')
             {
+				if (currentCh == '-')
+				{
+					isNegative = true; 
+				}
                 NextCh();
             }
         
             if (char.IsDigit(currentCh))
             {
-                NextCh();
+				parseResult = int.Parse(currentCh.ToString()); 
+				NextCh();
             }
             else
             {
@@ -84,14 +90,20 @@ namespace Lexer
 
             while (char.IsDigit(currentCh))
             {
-                NextCh();
+				parseResult = parseResult * 10 + int.Parse(currentCh.ToString());
+				NextCh();
             }
 
 
             if (currentCharValue != -1)
             {
-                Error();
+				Error();
             }
+
+			if (isNegative == true)
+			{
+				parseResult *= -1;
+			}
 
             return true;
 
@@ -225,8 +237,13 @@ namespace Lexer
     {
         private StringBuilder builder;
         private double parseResult;
+		Boolean isNegative = false;
+		Boolean isDouble = false;
+		int i = -1;
+		int res = 0;
 
-        public double ParseResult
+
+		public double ParseResult
         {
             get { return parseResult; }
 
@@ -238,12 +255,60 @@ namespace Lexer
             builder = new StringBuilder();
         }
 
-        public override bool Parse()
-        {
-            throw new NotImplementedException();
-        }
-       
-    }
+		public override bool Parse()
+		{
+			NextCh();
+			if (currentCh == '+' || currentCh == '-')
+			{
+				if (currentCh == '-')
+				{
+					isNegative = true;
+				}
+				NextCh();
+			}
+
+			if (char.IsDigit(currentCh))
+			{
+				parseResult = int.Parse(currentCh.ToString());
+				NextCh();
+			}
+			else
+			{
+				Error();
+			}
+
+			while (char.IsDigit(currentCh))
+			{
+				parseResult = parseResult * 10 + int.Parse(currentCh.ToString());
+				NextCh();
+			}
+
+			if (currentCh == '.'|currentCharValue == -1) 
+			{
+				i = 0;
+				NextCh();
+				while (char.IsDigit(currentCh))
+				{
+					res = res*10 + int.Parse(currentCh.ToString());
+					i++;
+				}
+			}
+			else
+			{
+				Error();
+			}
+
+			parseResult = parseResult + res / Math.Pow(10, i);
+
+			if (isNegative == true)
+			{
+				parseResult *= -1;
+			}
+
+			return true;
+
+		}
+
 
     public class StringLexer : Lexer
     {
