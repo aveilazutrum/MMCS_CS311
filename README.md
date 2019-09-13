@@ -2,6 +2,10 @@
 
 git clone --recurse-submodules <репозиторий> 
 
+git config --global user.name "Anna Mur"
+
+git config --global user.email "anna-murtuzalieva@yandex.ru"
+
 ### Как запустить тесты из репозитория
 
 [Инструкция](https://github.com/czen/MMCS_CS311/wiki/Как-запустить-тесты-из-репозитория)
