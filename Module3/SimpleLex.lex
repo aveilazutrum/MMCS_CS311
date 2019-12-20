@@ -5,10 +5,11 @@ Alpha 	[a-zA-Z_]
 Digit   [0-9] 
 AlphaDigit {Alpha}|{Digit}
 INTNUM  {Digit}+
+COMMENT \/\/[^\r\n]*
 REALNUM {INTNUM}\.{INTNUM}
 ID {Alpha}{AlphaDigit}* 
 
-// Здесь можно делать описания типов, переменных и методов - они попадают в класс Scanner
+// Г‡Г¤ГҐГ±Гј Г¬Г®Г¦Г­Г® Г¤ГҐГ«Г ГІГј Г®ГЇГЁГ±Г Г­ГЁГї ГІГЁГЇГ®Гў, ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г»Гµ ГЁ Г¬ГҐГІГ®Г¤Г®Гў - Г®Г­ГЁ ГЇГ®ГЇГ Г¤Г ГѕГІ Гў ГЄГ«Г Г±Г± Scanner
 %{
   public int LexValueInt;
   public double LexValueDouble;
@@ -23,6 +24,10 @@ ID {Alpha}{AlphaDigit}*
 {REALNUM} { 
   LexValueDouble = double.Parse(yytext);
   return (int)Tok.RNUM;
+}
+
+{COMMENT} {
+  return (int)Tok.COMMENT;
 }
 
 begin { 
@@ -55,16 +60,16 @@ cycle {
 
 [^ \r\n] {
 	LexError();
-	return 0; // конец разбора
+	return 0; // ГЄГ®Г­ГҐГ¶ Г°Г Г§ГЎГ®Г°Г 
 }
 
 %%
 
-// Здесь можно делать описания переменных и методов - они тоже попадают в класс Scanner
+// Г‡Г¤ГҐГ±Гј Г¬Г®Г¦Г­Г® Г¤ГҐГ«Г ГІГј Г®ГЇГЁГ±Г Г­ГЁГї ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г»Гµ ГЁ Г¬ГҐГІГ®Г¤Г®Гў - Г®Г­ГЁ ГІГ®Г¦ГҐ ГЇГ®ГЇГ Г¤Г ГѕГІ Гў ГЄГ«Г Г±Г± Scanner
 
 public void LexError()
 {
-	Console.WriteLine("({0},{1}): Неизвестный символ {2}", yyline, yycol, yytext);
+	Console.WriteLine("({0},{1}): ГЌГҐГЁГ§ГўГҐГ±ГІГ­Г»Г© Г±ГЁГ¬ГўГ®Г« {2}", yyline, yycol, yytext);
 }
 
 public string TokToString(Tok tok)
@@ -81,4 +86,3 @@ public string TokToString(Tok tok)
 			return tok + "";
 	}
 }
-

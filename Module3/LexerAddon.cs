@@ -37,19 +37,46 @@ namespace  GeneratedLexer
 
         public void Lex()
         {
-            // ×òîáû âåùåñòâåííûå ÷èñëà ðàñïîçíàâàëèñü è îòîáðàæàëèñü â ôîðìàòå 3.14 (à íå 3,14 êàê â ðóññêîé Culture)
+            // Ã—Ã²Ã®Ã¡Ã» Ã¢Ã¥Ã¹Ã¥Ã±Ã²Ã¢Ã¥Ã­Ã­Ã»Ã¥ Ã·Ã¨Ã±Ã«Ã  Ã°Ã Ã±Ã¯Ã®Ã§Ã­Ã Ã¢Ã Ã«Ã¨Ã±Ã¼ Ã¨ Ã®Ã²Ã®Ã¡Ã°Ã Ã¦Ã Ã«Ã¨Ã±Ã¼ Ã¢ Ã´Ã®Ã°Ã¬Ã Ã²Ã¥ 3.14 (Ã  Ã­Ã¥ 3,14 ÃªÃ Ãª Ã¢ Ã°Ã³Ã±Ã±ÃªÃ®Ã© Culture)
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
             int tok = 0;
-            do {
-                tok = myScanner.yylex();
+            double sum = 0;
+			do
+			{
+				tok = myScanner.yylex();
 
-                if (tok == (int)Tok.EOF)
-                {
-                    break;
-                }
-            } while (true);
-        }
-    }
+				if (tok == (int)Tok.EOF)
+				{
+					break;
+				}
+				else if (tok == (int)Tok.ID)
+				{
+					
+					string text = myScanner.yytext;
+					if (minIdLength > text.Length)
+					{
+						minIdLength = text.Length;
+					}
+					if (maxIdLength < text.Length)
+					{
+						maxIdLength = text.Length;
+					}
+					sum += myScanner.yyleng;
+					idCount++;
+
+				}
+				else if (tok == (int)Tok.INUM)
+				{
+					sumInt += myScanner.LexValueInt;
+				}
+				else if (tok == (int)Tok.RNUM)
+				{
+					sumDouble += myScanner.LexValueDouble;
+				}
+				
+			} while (true);
+			avgIdLength = sum / idCount;
+		}
+	}
 }
-

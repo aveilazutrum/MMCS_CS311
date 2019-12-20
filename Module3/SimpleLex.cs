@@ -25,9 +25,6 @@
 #define PERSIST
 #define BYTEMODE
 
-using System;
-using System.IO;
-using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -644,52 +641,61 @@ int NextState() {
 
         // ============== The main tokenizer code =================
 
-        int Scan() {
-                for (; ; ) {
-                    int next;              // next state to enter
+        int Scan()
+        {
+                for (; ; )
+                {
+                    int next;              // next state to enter                   
+#if BACKUP
+                    Result rslt = Result.noMatch;
+#endif // BACKUP
 #if LEFTANCHORS
-                    for (;;) {
+                    for (;;)
+                    {
                         // Discard characters that do not start any pattern.
                         // Must check the left anchor condition after *every* GetCode!
                         state = ((cCol == 0) ? anchorState[currentScOrd] : currentStart);
-                        if ((next = NextState()) != goStart) break; // LOOP EXIT HERE...
+                        if ((next = NextState()) != goStart) 
+                            break; // LOOP EXIT HERE...
                         GetCode();
                     }
                     
 #else // !LEFTANCHORS
                     state = currentStart;
-                    while ((next = NextState()) == goStart) {
+                    while ((next = NextState()) == goStart)
                         // At this point, the current character has no
                         // transition from the current state.  We discard 
                         // the "no-match" char.   In traditional LEX such 
                         // characters are echoed to the console.
                         GetCode();
-                    }
 #endif // LEFTANCHORS                    
                     // At last, a valid transition ...    
                     MarkToken();
                     state = next;
-                    GetCode();                    
+                    GetCode();
+                    
+                    while ((next = NextState()) > eofNum) // Exit for goStart AND for eofNum
 #if BACKUP
-                    bool contextSaved = false;
-                    while ((next = NextState()) > eofNum) { // Exit for goStart AND for eofNum
-                        if (state <= maxAccept && next > maxAccept) { // need to prepare backup data
-                            // Store data for the *latest* accept state that was found.
-                            SaveStateAndPos( ref ctx );
-                            contextSaved = true;
+                        if (state <= maxAccept && next > maxAccept) // need to prepare backup data
+                        {
+                            // ctx is an object. The fields may be 
+                            // mutated by the call to Recurse2.
+                            // On return the data in ctx is the
+                            // *latest* accept state that was found.
+                            
+                            rslt = Recurse2(ref ctx, next);
+                            if (rslt == Result.noMatch) 
+                                RestoreStateAndPos(ref ctx);
+                            break;
                         }
-                        state = next;
-                        GetCode();
-                    }
-                    if (state > maxAccept && contextSaved)
-                        RestoreStateAndPos( ref ctx );
-#else  // BACKUP
-                    while ((next = NextState()) > eofNum) { // Exit for goStart AND for eofNum
-                         state = next;
-                         GetCode();
-                    }
+                        else
 #endif // BACKUP
-                    if (state <= maxAccept) {
+                        {
+                            state = next;
+                            GetCode();
+                        }
+                    if (state <= maxAccept) 
+                    {
                         MarkEnd();
 #region ActionSwitch
 #pragma warning disable 162, 1522
@@ -752,7 +758,29 @@ LexValueDouble = double.Parse(yytext);
         }
 
 #if BACKUP
-        void SaveStateAndPos(ref Context ctx) {
+        Result Recurse2(ref Context ctx, int next)
+        {
+            // Assert: at entry "state" is an accept state AND
+            //         NextState(state, code) != goStart AND
+            //         NextState(state, code) is not an accept state.
+            //
+            SaveStateAndPos(ref ctx);
+            state = next;
+            GetCode();
+
+            while ((next = NextState()) > eofNum)
+            {
+                if (state <= maxAccept && next > maxAccept) // need to update backup data
+                    SaveStateAndPos(ref ctx);
+                state = next;
+                if (state == eofNum) return Result.accept;
+                GetCode(); 
+            }
+            return (state <= maxAccept ? Result.accept : Result.noMatch);
+        }
+
+        void SaveStateAndPos(ref Context ctx)
+        {
             ctx.bPos  = buffer.Pos;
             ctx.rPos  = readPos;
             ctx.cCol  = cCol;
@@ -761,7 +789,8 @@ LexValueDouble = double.Parse(yytext);
             ctx.cChr  = code;
         }
 
-        void RestoreStateAndPos(ref Context ctx) {
+        void RestoreStateAndPos(ref Context ctx)
+        {
             buffer.Pos = ctx.bPos;
             readPos = ctx.rPos;
             cCol  = ctx.cCol;
@@ -769,7 +798,8 @@ LexValueDouble = double.Parse(yytext);
             state = ctx.state;
             code  = ctx.cChr;
         }
-#endif  // BACKUP
+
+#endif // BACKUP
 
         // ============= End of the tokenizer code ================
 
