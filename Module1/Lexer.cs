@@ -20,8 +20,8 @@ namespace Lexer
     {
 
         protected int position;
-        protected char currentCh; // очередной считанный символ
-        protected int currentCharValue; // целое значение очередного считанного символа
+        protected char currentCh; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        protected int currentCharValue; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         protected System.IO.StringReader inputReader;
         protected string inputString;
 
@@ -126,12 +126,26 @@ namespace Lexer
         }
 
         public override bool Parse()
-        { 
-            throw new NotImplementedException();
+        {
+			NextCh();
+			while (currentCharValue!=-1)
+			{
+				if (currentCh == '$' || currentCh == '.')
+				{
+					Error();
+				}
+				builder.Append(currentCh);
+				NextCh();
+			}
+			parseResult = builder.ToString();
+			if (string.IsNullOrEmpty(parseResult))
+			{
+				Error();
+			}
+			return true;
         }
        
     }
-
     public class IntNoZeroLexer : IntLexer
     {
         public IntNoZeroLexer(string input)
