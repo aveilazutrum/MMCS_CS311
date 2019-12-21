@@ -1,11 +1,11 @@
 
 // ==========================================================================
-//  GPPG error listing for yacc source file <SimpleYacc.y>
+//  GPPG error listing for yacc source file <SimpleYacc.y - 23.11.2019 0:20:42>
 // ==========================================================================
-//  Version:  1.3.6
-//  Machine:  SSM
-//  DateTime: 17.08.2014 10:25:15
-//  UserName: Станислав
+//  Version:  1.5.0
+//  Machine:  DESKTOP-ELLS3S8
+//  DateTime: 23.11.2019 0:20:51
+//  UserName: Makc0
 // ==========================================================================
 
 
@@ -16,19 +16,13 @@
 
 %output = SimpleYacc.cs
 
-%using System.IO;
-
 %namespace SimpleParser
 
-%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON  
+%token BEGIN END CYCLE INUM RNUM ID ASSIGN SEMICOLON FOR DO TO WHILE IF THEN ELSE REPEAT VAR UNTIL RIGHT_BRACKET LEFT_BRACKET WRITE PLUS MINUS DIVISION MULT COMMA
 
 %%
-// Error: NonTerminal symbol "st" has no productions
-// Warning: Terminating st fixes the following size-2 NonTerminal set
-   // {cycle, st}
-// Error: There are 2 non-terminating NonTerminal Symbols
-   //  {cycle, st}
-// ------------------------------------------------------------------
+// Warning: NonTerminal symbol "act" is unreachable
+// ------------------------------------------------
 
 progr   : block
 		;
@@ -39,26 +33,59 @@ stlist	: statement
 
 statement: assign
 		| block  
-		| cycle  
+		| cycle 
+		| for
+		| if
+		| while
+		| repeat
+		| write
+		| var
 		;
 
-ident 	: ID 
+ident 	: ID
+		| ID COMMA ident
 		;
+
 	
 assign 	: ident ASSIGN expr 
 		;
 
-expr	: ident  
+var		: VAR ident
+		;
+
+act		: PLUS
+		| MINUS
+		| MULT
+		| DIVISION
+		;
+
+expr	: ident 
 		| INUM 
+		| LEFT_BRACKET expr RIGHT_BRACKET
+		| expr PLUS expr
+		| expr MINUS expr
+		| expr MULT expr
+		| expr DIVISION expr
 		;
 
 block	: BEGIN stlist END 
 		;
 
-cycle	: CYCLE expr st 
+cycle	: CYCLE expr statement 
+		;
+
+for		: FOR assign TO expr DO stlist
+		;
+
+if		: IF expr THEN stlist ELSE stlist
+		;
+while	: WHILE expr DO statement
+		;
+repeat	:REPEAT stlist UNTIL expr
+		;
+write	: WRITE LEFT_BRACKET expr RIGHT_BRACKET
 		;
 	
 %%
-
 // ==========================================================================
 

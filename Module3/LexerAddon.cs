@@ -37,7 +37,7 @@ namespace  GeneratedLexer
 
         public void Lex()
         {
-            // Г—ГІГ®ГЎГ» ГўГҐГ№ГҐГ±ГІГўГҐГ­Г­Г»ГҐ Г·ГЁГ±Г«Г  Г°Г Г±ГЇГ®Г§Г­Г ГўГ Г«ГЁГ±Гј ГЁ Г®ГІГ®ГЎГ°Г Г¦Г Г«ГЁГ±Гј Гў ГґГ®Г°Г¬Г ГІГҐ 3.14 (Г  Г­ГҐ 3,14 ГЄГ ГЄ Гў Г°ГіГ±Г±ГЄГ®Г© Culture)
+            // Чтобы вещественные числа распознавались и отображались в формате 3.14 (а не 3,14 как в русской Culture)
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
             int tok = 0;
@@ -80,3 +80,8 @@ namespace  GeneratedLexer
 		}
 	}
 }
+
+
+
+
+
