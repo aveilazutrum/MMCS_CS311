@@ -45,15 +45,15 @@ namespace  GeneratedLexer
 			do
 			{
 				tok = myScanner.yylex();
-
+				// выход по концу текста
 				if (tok == (int)Tok.EOF)
 				{
 					break;
-				}
+				}  // поиск переменных
 				else if (tok == (int)Tok.ID)
 				{
-					
 					string text = myScanner.yytext;
+					// минимум и максимум имени переменной
 					if (minIdLength > text.Length)
 					{
 						minIdLength = text.Length;
@@ -66,16 +66,19 @@ namespace  GeneratedLexer
 					idCount++;
 
 				}
+				// сумма всех целых чисел
 				else if (tok == (int)Tok.INUM)
 				{
 					sumInt += myScanner.LexValueInt;
 				}
+				// сумма всех дробных чисел 
 				else if (tok == (int)Tok.RNUM)
 				{
 					sumDouble += myScanner.LexValueDouble;
 				}
 				
 			} while (true);
+			// средняя длина имени переменной 
 			avgIdLength = sum / idCount;
 		}
 	}

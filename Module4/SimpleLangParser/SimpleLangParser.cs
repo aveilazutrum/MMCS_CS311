@@ -29,12 +29,16 @@ namespace SimpleLangParser
 
         public void Expr() 
         {
+			// проверка на сумму или разность
+			// проверка на переменную или число
             if (l.LexKind == Tok.ID || l.LexKind == Tok.INUM)
             {
                 l.NextLexem();
+				// проверка на плюс или минус
 				if (l.LexKind == Tok.PLUS || l.LexKind == Tok.MINUS)
 				{
 					l.NextLexem();
+					// повторный вызов для того чтобы продолжить проверку
 					Expr();
 				}
             }
@@ -46,6 +50,7 @@ namespace SimpleLangParser
 
         public void Assign() 
         {
+			// проверка на оператор присвоения
             l.NextLexem();  // пропуск id
             if (l.LexKind == Tok.ASSIGN)
             {
@@ -54,34 +59,42 @@ namespace SimpleLangParser
             else {
                 SyntaxError(":= expected");
             }
+			// вызов проверки на выражение
             Expr();
         }
 
 		public void For()
 		{
+			// проверка на for
 			if (l.LexKind != Tok.FOR)
 			{
 				SyntaxError("for expected");
 			}
 			l.NextLexem();
+			// оператор присвоения
 			Assign();
+			// проверка на ключевое слово to
 			if (l.LexKind != Tok.TO)
 			{
 				SyntaxError("to expected");
 			}
 			l.NextLexem();
+			// проверка на выражение
 			Expr();
+			// проверка на ключевое слово do
 			if (l.LexKind != Tok.DO)
 			{
 				SyntaxError("do expected");
 			}
 			l.NextLexem();
+			// проверка на начало блока операторов
 			if (l.LexKind == Tok.BEGIN)
 			{
 				Block();
 			}
 			else
 			{
+				// или на выражение
 				Statement();
 			}
 
@@ -89,33 +102,41 @@ namespace SimpleLangParser
 
 		public void StatementList() 
         {
+			// список выражений
             Statement();
+			// проверка на запятую
             while (l.LexKind == Tok.SEMICOLON)
             {
                 l.NextLexem();
+				// выражение
                 Statement();
             }
         }
 
         public void Statement() 
         {
+			// выражение
             switch (l.LexKind)
             {
+				// блок операторов
                 case Tok.BEGIN:
                     {
                         Block(); 
                         break;
                     }
+				// цикл
                 case Tok.CYCLE:
                     {
                         Cycle(); 
                         break;
                     }
+				// переменная и оператор присвоения
                 case Tok.ID:
                     {
                         Assign();
                         break;
                     }
+				// цикл for
 				case Tok.FOR:
 					{
 						For();
@@ -131,8 +152,10 @@ namespace SimpleLangParser
 
         public void Block() 
         {
+			// отдельный блок операторов
             l.NextLexem();    // пропуск begin
             StatementList();
+			// конец блока
             if (l.LexKind == Tok.END)
             {
                 l.NextLexem();
@@ -146,6 +169,7 @@ namespace SimpleLangParser
 
         public void Cycle() 
         {
+			// цикл
             l.NextLexem();  // пропуск cycle
             Expr();
             Statement();
